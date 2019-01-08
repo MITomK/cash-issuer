@@ -31,6 +31,10 @@ class BankAccountContract : Contract {
                     "The transaction is signed by the verifier of the BankAccount." using (bankAccountOutput.verifier.owningKey in command.signers)
                 }
             }
+            // we currently interpret the Update-command more in the sense of a verify command
+            // this means: an update can only be done on the verified status from false to true
+            // the update can only be done once
+            // later deletions, lockings, etc. of a bank account must be considered separately
             is Update -> {
                 "An Update BankAccount transaction must consume one input state." using (tx.inputs.size == 1)
                 "An Update BankAccount transaction must create one output state." using (tx.outputs.size == 1)
@@ -38,17 +42,13 @@ class BankAccountContract : Contract {
                 val bankAccountInput = tx.inputsOfType<BankAccountState>().single()
                 val bankAccountOutput = tx.outputsOfType<BankAccountState>().single()
 
-                "Only the same BankAccount can be updated." using (bankAccountInput.linearId == bankAccountOutput.linearId)
-                "Something has to be changed." using (bankAccountInput != bankAccountOutput)
-
                 // IF AN INPUT STATE IS VERIFIED WE DO NOT ALLOW ANY CHANGES ANY MORE
                 if (bankAccountInput.verified) {
                     throw IllegalArgumentException("Verified BankAccounts could not be further changed.")
-                } else if (bankAccountOutput.verified) {
-                    "The transaction is signed by the verifier of the BankAccount." using (bankAccountOutput.verifier.owningKey in command.signers)
-                    "On verification only the verify state can be changed." using (bankAccountInput == bankAccountOutput.copy(verified = bankAccountInput.verified))
                 } else {
-                    "The transaction is signed by the owner of the BankAccount." using (bankAccountOutput.owner.owningKey in command.signers)
+                    "Only the verify status must be changed." using (bankAccountInput == bankAccountOutput.copy(verified = false))
+                    "The account must be verified." using (bankAccountOutput.verified == true)
+                    "The transaction is signed by the verifier of the BankAccount." using (bankAccountOutput.verifier.owningKey in command.signers)
                 }
             }
             else -> throw IllegalArgumentException("Unrecognised command")

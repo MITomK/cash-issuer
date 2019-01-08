@@ -14,7 +14,6 @@ class BankAccountAddTests {
 
     @Test
     fun `must include add command`() {
-//    fun mustIncludeAddCommand() {
         val bankAccount = BankAccountState(ALICE.party, BOB.party, "1234", "Dummy Account", UKAccountNumber("10000000000014"), Currency.getInstance("USD"), BankAccountType.COLLATERAL)
         ledgerServices.ledger {
             transaction {
@@ -32,7 +31,6 @@ class BankAccountAddTests {
 
     @Test
     fun `must have no input`() {
-//    fun mustHaveNoInput() {
         val bankAccount = BankAccountState(ALICE.party, BOB.party, "1234", "Dummy Account", UKAccountNumber("10000000000014"), Currency.getInstance("USD"), BankAccountType.COLLATERAL)
         ledgerServices.ledger {
             transaction {
@@ -51,7 +49,6 @@ class BankAccountAddTests {
 
     @Test
     fun `must have only one output`() {
-//    fun mustHaveOnlyOneOutput() {
         val bankAccount = BankAccountState(ALICE.party, BOB.party, "1234", "Dummy Account", UKAccountNumber("10000000000014"), Currency.getInstance("USD"), BankAccountType.COLLATERAL)
         ledgerServices.ledger {
             transaction {
@@ -70,7 +67,6 @@ class BankAccountAddTests {
 
     @Test
     fun `must have bankaccount output`() {
-//    fun mustHaveBankAccountOutput() {
         val bankAccount = BankAccountState(ALICE.party, BOB.party, "1234", "Dummy Account", UKAccountNumber("10000000000014"), Currency.getInstance("USD"), BankAccountType.COLLATERAL)
         ledgerServices.ledger {
             transaction {
@@ -88,7 +84,6 @@ class BankAccountAddTests {
 
     @Test
     fun `must be signed by owner`() {
-//    fun mustBeSignedByOwner() {
         val bankAccount = BankAccountState(ALICE.party, BOB.party, "1234", "Dummy Account", UKAccountNumber("10000000000014"), Currency.getInstance("USD"), BankAccountType.COLLATERAL)
         ledgerServices.ledger {
             transaction {
