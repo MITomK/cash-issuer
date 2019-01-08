@@ -24,11 +24,11 @@ class BankAccountContract : Contract {
         when (command.value) {
             is Add -> {
                 "No inputs should be consumed when issuing a new BankAccount." using (tx.inputs.isEmpty())
-                "Only one output state should be created when adding a BankAccountissuing." using (tx.outputs.size == 1)
+                "Only one output state should be created when adding a BankAccount." using (tx.outputs.size == 1)
                 val bankAccountOutput = tx.outputsOfType<BankAccountState>().single()
-                "The transaction is signed by the owner of the BankAccount" using (bankAccountOutput.owner.owningKey in command.signers)
+                "The transaction is signed by the owner of the BankAccount." using (bankAccountOutput.owner.owningKey in command.signers)
                 if (bankAccountOutput.verified) {
-                    "The transaction is signed by the verifier of the BankAccount" using (bankAccountOutput.verifier.owningKey in command.signers)
+                    "The transaction is signed by the verifier of the BankAccount." using (bankAccountOutput.verifier.owningKey in command.signers)
                 }
             }
             is Update -> {
@@ -38,16 +38,17 @@ class BankAccountContract : Contract {
                 val bankAccountInput = tx.inputsOfType<BankAccountState>().single()
                 val bankAccountOutput = tx.outputsOfType<BankAccountState>().single()
 
-                "Only the same BankAccount can be updated" using (bankAccountInput.linearId == bankAccountOutput.linearId)
+                "Only the same BankAccount can be updated." using (bankAccountInput.linearId == bankAccountOutput.linearId)
+                "Something has to be changed." using (bankAccountInput != bankAccountOutput)
 
                 // IF AN INPUT STATE IS VERIFIED WE DO NOT ALLOW ANY CHANGES ANY MORE
                 if (bankAccountInput.verified) {
-                    throw IllegalArgumentException("Verified BankAccounts could not be further changed")
+                    throw IllegalArgumentException("Verified BankAccounts could not be further changed.")
                 } else if (bankAccountOutput.verified) {
-                    "The transaction is signed by the owner of the BankAccount" using (bankAccountOutput.verifier.owningKey in command.signers)
-                    "On verification only the verify state can be changed" using (bankAccountInput == bankAccountOutput.copy(verified = bankAccountInput.verified))
+                    "The transaction is signed by the verifier of the BankAccount." using (bankAccountOutput.verifier.owningKey in command.signers)
+                    "On verification only the verify state can be changed." using (bankAccountInput == bankAccountOutput.copy(verified = bankAccountInput.verified))
                 } else {
-                    "The transaction is signed by the owner of the BankAccount" using (bankAccountOutput.owner.owningKey in command.signers)
+                    "The transaction is signed by the owner of the BankAccount." using (bankAccountOutput.owner.owningKey in command.signers)
                 }
             }
             else -> throw IllegalArgumentException("Unrecognised command")
