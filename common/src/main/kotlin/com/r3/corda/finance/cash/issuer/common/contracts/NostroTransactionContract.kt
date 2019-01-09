@@ -22,16 +22,29 @@ class NostroTransactionContract : Contract {
     // TODO: Contract code not implemented for demo.
     override fun verify(tx: LedgerTransaction) {
         // A transaction must have only one command of type add or match
+        // TODO: Test if this allows more than one command of different types
         val command = tx.commands.requireSingleCommand<NostroTransactionContract.Commands>()
+
+        requireThat {
+            val groups = tx.groupStates { it: NostroTransactionState -> it.participants }
+            val issuers = groups.first().outputs.first().participants
+            "NostroTransactionStates must have only one list of participants" using (groups.size == 1)
+            "Must have only one participant/issuer per NostroTransactionState" using (issuers.size == 1)
+            "The participant must be the signer of the NostroTransactionState" using (command.signingParties.contains(issuers.first()))
+        }
 
         when (command.value) {
             is Add -> {
                 requireThat {
+                    val out = tx.outputsOfType<NostroTransactionState>()
                     "The transaction must have no input states when adding new nostro transactions" using (tx.inputStates.isEmpty())
                     "The transaction must have at least one input state" using (tx.outputStates.isNotEmpty())
-                    "All output states types must be of type NostroTransactionState" using (tx.outputsOfType<NostroTransactionState>().containsAll(tx.outputStates))
-                }
+                    "All output states types must be of type NostroTransactionState" using (out.containsAll(tx.outputStates))
 
+                    for (it in out) {
+                        if (it.type == NostroTransactionStatus.MATCHED) throw IllegalArgumentException("Adding new NostroTransactions with status matched is prohibited")
+                    }
+                }
             }
 
             is Match -> {
@@ -52,13 +65,10 @@ class NostroTransactionContract : Contract {
 
                         "The NostroTransactionState output must not be unmatched" using (out.status != NostroTransactionStatus.UNMATCHED)
                     }
-
                 }
-
             }
 
             else -> throw IllegalArgumentException("Unrecognised command")
         }
     }
-
 }
